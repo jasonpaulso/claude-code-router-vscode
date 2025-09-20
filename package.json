@@ -1,0 +1,53 @@
+{
+  "name": "claude-code-router-vscode",
+  "displayName": "Claude Code Router For VS Code",
+  "description": "A router for Claude Code",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.104.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "claude-code-router.runCcrCode",
+        "title": "Run CCR Code"
+      }
+    ],
+    "menus": {
+      "editor/title": [
+        {
+          "command": "claude-code-router.runCcrCode",
+          "group": "navigation",
+          "icon": {
+            "light": "resources/claude-logo-2.png",
+            "dark": "resources/claude-logo-2.png"
+          }
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src",
+    "test": "vscode-test"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.104.0",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "22.x",
+    "@typescript-eslint/eslint-plugin": "^8.42.0",
+    "@typescript-eslint/parser": "^8.42.0",
+    "eslint": "^9.34.0",
+    "typescript": "^5.9.2",
+    "@vscode/test-cli": "^0.0.11",
+    "@vscode/test-electron": "^2.5.2"
+  }
+}
