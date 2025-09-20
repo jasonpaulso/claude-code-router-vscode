@@ -23,7 +23,7 @@
         {
           "command": "claude-code-router.runCcrCode",
           "group": "navigation",
-          "icon": "./resources/claude-logo-2.svg"
+          "icon": "$(terminal)"
         }
       ]
     }
