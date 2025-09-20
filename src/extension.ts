@@ -15,7 +15,7 @@ export function activate(context: vscode.ExtensionContext) {
 	// The commandId parameter must match the command field in package.json
 	const disposable = vscode.commands.registerCommand('claude-code-router.runCcrCode', () => {
 		// The code you place here will be executed every time your command is executed
-		const terminal = vscode.window.createTerminal(`Claude Code Router`);
+		const terminal = vscode.window.createTerminal({ name: `Claude Code Router`, location: vscode.TerminalLocation.Editor });
 		terminal.sendText('ccr code');
 		terminal.show();
 	});
