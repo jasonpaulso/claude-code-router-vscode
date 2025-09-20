@@ -9,7 +9,9 @@
   "categories": [
     "Other"
   ],
-  "activationEvents": [],
+  "activationEvents": [
+    "onCommand:claude-code-router.runCcrCode"
+  ],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
@@ -22,8 +24,9 @@
       "editor/title": [
         {
           "command": "claude-code-router.runCcrCode",
+          "when": "editorTextFocus",
           "group": "navigation",
-          "icon": "$(terminal)"
+          "icon": "./resources/claude-logo-2.svg"
         }
       ]
     }
