@@ -4,6 +4,10 @@
   "description": "Adds a button to the editor title bar to open Claude Code Router in VS Code.",
   "version": "0.0.1",
   "publisher": "Axtra",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Axtraa/claude-code-router-vscode.git"
+  },
   "icon": "resources/claude-logo.png",
   "engines": {
     "vscode": "^1.104.0"
