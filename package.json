@@ -3,6 +3,7 @@
   "displayName": "Claude Code Router For VS Code",
   "description": "A router for Claude Code",
   "version": "0.0.1",
+  "icon": "resources/claude-logo.png",
   "engines": {
     "vscode": "^1.104.0"
   },
