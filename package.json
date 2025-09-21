@@ -1,7 +1,7 @@
 {
   "name": "claude-code-router-vscode",
   "displayName": "Claude Code Router For VS Code",
-  "description": "A router for Claude Code",
+  "description": "Adds a button to the editor title bar to open Claude Code Router in VS Code.",
   "version": "0.0.1",
   "icon": "resources/claude-logo.png",
   "engines": {
