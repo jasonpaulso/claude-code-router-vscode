@@ -1,7 +1,5 @@
 # Claude Code Router For VS Code
 
-![Extension icon](./resources/claude-logo.png)
-
 This extension adds a button to the editor title bar to open the Claude Code Router in a split-view terminal within VS Code.
 
 ## Features
@@ -17,14 +15,17 @@ To install this extension locally:
 1.  **Package the extension**:
 
     First, ensure you have `@vscode/vsce`, the official tool for packaging extensions:
+
     ```bash
     npm install -g @vscode/vsce
     ```
 
     Then, run the package command from the root of the project:
+
     ```bash
     vsce package
     ```
+
     This will create a `claude-code-router-vscode-x.x.x.vsix` file.
 
 2.  **Install in VS Code**:
