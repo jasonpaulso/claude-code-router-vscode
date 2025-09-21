@@ -23,7 +23,6 @@
       "editor/title": [
         {
           "command": "claude-code-router.runCcrCode",
-          "when": "editorTextFocus",
           "group": "navigation"
         }
       ]
