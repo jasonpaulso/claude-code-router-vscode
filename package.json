@@ -1,14 +1,14 @@
 {
-  "name": "claude-code-router-vscode",
-  "displayName": "Claude Code Router For Visual Studio Code",
-  "description": "Adds a button to the editor title bar to open Claude Code Router in VS Code.",
-  "version": "0.0.1",
-  "publisher": "Axtra",
+  "name": "claude-code-configured-vscode",
+  "displayName": "Claude Code Configuration Runner",
+  "description": "Claude Code Configuration Runner for VS Code.",
+  "version": "0.0.2",
+  "publisher": "jasonschulz",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Axtraa/claude-code-router-vscode.git"
+    "url": "https://github.com/jasonspaulso/claude-code-configured-vscode.git"
   },
-  "icon": "resources/claude-logo.png",
+  "icon": "resources/claude-light.png",
   "engines": {
     "vscode": "^1.104.0"
   },
@@ -18,17 +18,40 @@
   "main": "./out/extension.js",
   "activationEvents": [],
   "contributes": {
+    "icons": {
+      "claude-icon": {
+        "description": "claude-icon",
+        "default": {
+          "fontPath": "resources/icons.woff",
+          "fontCharacter": "\\E900"
+        }
+      },
+      "gemini-icon": {
+        "description": "gemini-icon",
+        "default": {
+          "fontPath": "resources/icons.woff",
+          "fontCharacter": "\\E902"
+        }
+      },
+      "codex-icon": {
+        "description": "codex-icon",
+        "default": {
+          "fontPath": "resources/icons.woff",
+          "fontCharacter": "\\E901"
+        }
+      }
+    },
     "commands": [
       {
-        "command": "claude-code-router.runCcrCode",
-        "title": "Run CCR",
-        "icon": "./resources/claude-logo-2.svg"
+        "command": "claude-code-configured.runClaudeCodeConfigured",
+        "title": "Run Claude Code Configured",
+        "icon": "./resources/claude-color.svg"
       }
     ],
     "menus": {
       "editor/title": [
         {
-          "command": "claude-code-router.runCcrCode",
+          "command": "claude-code-configured.runClaudeCodeConfigured",
           "group": "navigation"
         }
       ]

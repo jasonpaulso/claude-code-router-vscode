@@ -23,15 +23,15 @@ class McpServersContentProvider implements vscode.TextDocumentContentProvider {
 
 // Find all JSON files in the mcp_servers directory
 async function findMcpServerJsonFiles(workspaceDir: string): Promise<string[]> {
-  const mcpServersDir = path.join(workspaceDir, "mcp_servers");
+  const mcpServersDir = path.join(workspaceDir, ".claude");
+  // const mcpServersFilePath = path.join(workspaceDir, ".claude", "mcpServers.json");
 
   if (!fs.existsSync(mcpServersDir)) {
     return [];
   }
-
   const files = await fs.promises.readdir(mcpServersDir);
   return files
-    .filter((file) => file.endsWith(".json"))
+    .filter((file) => file.endsWith("mcpServers.json"))
     .map((file) => path.join(mcpServersDir, file));
 }
 
@@ -57,10 +57,8 @@ function collectMcpServers(jsonObjects: any[]): Map<string, any> {
   const mcpServersMap = new Map<string, any>();
 
   for (const { data } of jsonObjects) {
-    if (data.mcpServers && typeof data.mcpServers === "object") {
-      for (const [serverName, serverConfig] of Object.entries(
-        data.mcpServers
-      )) {
+    if (data.servers && typeof data.servers === "object") {
+      for (const [serverName, serverConfig] of Object.entries(data.servers)) {
         // Store with unique key to handle potential duplicates
         mcpServersMap.set(serverName, serverConfig);
       }
@@ -117,7 +115,7 @@ async function createTempJsonFile(
   const tempDir = os.tmpdir();
   const tempFilePath = path.join(tempDir, `mcp-servers-${timestamp}.json`);
 
-  await fs.promises.writeFile(tempFilePath, content, 'utf-8');
+  await fs.promises.writeFile(tempFilePath, content, "utf-8");
 
   return tempFilePath;
 }
@@ -177,7 +175,7 @@ export function activate(context: vscode.ExtensionContext) {
   // Use the console to output diagnostic information (console.log) and errors (console.error)
   // This line of code will only be executed once when your extension is activated
   console.log(
-    'Congratulations, your extension "claude-code-router-vscode" is now active!'
+    'Congratulations, your extension "claude-code-configured-vscode" is now active!'
   );
 
   // Register the virtual document provider
@@ -194,7 +192,7 @@ export function activate(context: vscode.ExtensionContext) {
 
   // Register the selectMcpServers command
   const selectMcpServersCommand = vscode.commands.registerCommand(
-    "claude-code-router.selectMcpServers",
+    "claude-code-configured.selectMcpServers",
     async () => {
       const tempFilePath = await selectMcpServers();
       if (tempFilePath) {
@@ -210,17 +208,21 @@ export function activate(context: vscode.ExtensionContext) {
   // Now provide the implementation of the command with registerCommand
   // The commandId parameter must match the command field in package.json
   const disposable = vscode.commands.registerCommand(
-    "claude-code-router.runCcrCode",
+    "claude-code-configured.runClaudeCodeConfigured",
     async () => {
       const tempFilePath = await selectMcpServers();
+      let command = "claude";
       if (tempFilePath) {
-        const terminal = vscode.window.createTerminal({
-          name: `Claude Code Router`,
-          location: { viewColumn: vscode.ViewColumn.Beside },
-        });
-        terminal.sendText(`claude --mcp-config "${tempFilePath}"`);
-        terminal.show();
+        // If a temp file was created, include it in the command
+        command += ` --mcp-servers ${tempFilePath}`;
       }
+      const terminal = vscode.window.createTerminal({
+        name: `Claude Code Router`,
+        location: { viewColumn: vscode.ViewColumn.Beside },
+        iconPath: new vscode.ThemeIcon("claude-icon"),
+      });
+      terminal.sendText(command);
+      terminal.show();
     }
   );
 
