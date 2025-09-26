@@ -1,0 +1,16 @@
+{
+	"servers": {
+		"ask codex": {
+			"type": "stdio",
+			"command": "codex",
+			"args": [
+				"mcp"
+			]
+		},
+		"my-mcp-server-268a883d": {
+			"url": "http://localhost:1234",
+			"type": "http"
+		}
+	},
+	"inputs": []
+}

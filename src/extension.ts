@@ -1,92 +1,174 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from "vscode";
+import * as path from "path";
+import * as fs from "fs";
+import * as os from "os";
 
-// add a function that looks for an reads from a directory in the workspace called mcp_servers
-async function readMcpServersDirectory() {
-  const workspaceFolders = vscode.workspace.workspaceFolders;
-  if (!workspaceFolders) {
-    vscode.window.showErrorMessage("No workspace folder is open.");
-    return [];
+// Virtual document provider for MCP servers JSON
+class McpServersContentProvider implements vscode.TextDocumentContentProvider {
+  private _onDidChange = new vscode.EventEmitter<vscode.Uri>();
+  readonly onDidChange = this._onDidChange.event;
+  private content: string = "{}";
+
+  provideTextDocumentContent(_uri: vscode.Uri): string {
+    return this.content;
   }
 
-  const mcpServersPath = vscode.Uri.joinPath(
-    workspaceFolders[0].uri,
-    "mcp_servers"
-  );
-  try {
-    const files = await vscode.workspace.fs.readDirectory(mcpServersPath);
-    return files
-      .filter(([name, type]) => type === vscode.FileType.File)
-      .map(([name]) => name);
-  } catch (error) {
-    vscode.window.showErrorMessage("Could not read mcp_servers directory.");
-    return [];
+  update(uri: vscode.Uri, content: string) {
+    this.content = content;
+    this._onDidChange.fire(uri);
   }
 }
 
-// example server file contents:
-// {
-// 	"mcpServers": {
-// 		"server-1": {
-// 			"args": ["args"],
-// 			"command": "command"
-// 		},
-// 		"server-2": {
-// 			"args": ["args"],
-// 			"command": "command"
-// 		}
-// 	}
-// }
+// Find all JSON files in the mcp_servers directory
+async function findMcpServerJsonFiles(workspaceDir: string): Promise<string[]> {
+  const mcpServersDir = path.join(workspaceDir, "mcp_servers");
 
-// write a function that reads a specific mcp server config file from the mcp_servers directory and returns the parsed JSON listing individual servers
+  if (!fs.existsSync(mcpServersDir)) {
+    return [];
+  }
 
-async function readMcpServerConfigs() {
-  const servers = await readMcpServersDirectory();
-  const configs = await Promise.all(
-    servers.map(async (server) => {
-      return readMcpServerConfig(server);
+  const files = await fs.promises.readdir(mcpServersDir);
+  return files
+    .filter((file) => file.endsWith(".json"))
+    .map((file) => path.join(mcpServersDir, file));
+}
+
+// Read and parse JSON files
+async function readJsonFiles(filePaths: string[]): Promise<any[]> {
+  const jsonObjects = [];
+
+  for (const filePath of filePaths) {
+    try {
+      const content = await fs.promises.readFile(filePath, "utf-8");
+      const parsed = JSON.parse(content);
+      jsonObjects.push({ filePath, data: parsed });
+    } catch (error) {
+      console.error(`Error reading ${filePath}:`, error);
+    }
+  }
+
+  return jsonObjects;
+}
+
+// Collect and merge all mcpServers objects
+function collectMcpServers(jsonObjects: any[]): Map<string, any> {
+  const mcpServersMap = new Map<string, any>();
+
+  for (const { data } of jsonObjects) {
+    if (data.mcpServers && typeof data.mcpServers === "object") {
+      for (const [serverName, serverConfig] of Object.entries(
+        data.mcpServers
+      )) {
+        // Store with unique key to handle potential duplicates
+        mcpServersMap.set(serverName, serverConfig);
+      }
+    }
+  }
+
+  return mcpServersMap;
+}
+
+// Show multi-select quickpick for server selection
+async function showServerQuickPick(
+  mcpServersMap: Map<string, any>
+): Promise<Map<string, any> | undefined> {
+  const items: vscode.QuickPickItem[] = Array.from(mcpServersMap.entries()).map(
+    ([name, config]) => ({
+      label: name,
+      description: `Command: ${config.command}`,
+      detail: config.args ? `Args: ${config.args.join(" ")}` : undefined,
+      picked: false,
     })
   );
-  return configs.filter((config) => config !== null);
-}
 
-async function readMcpServerConfig(serverFileName: string) {
-  const workspaceFolders = vscode.workspace.workspaceFolders;
-  if (!workspaceFolders) {
-    vscode.window.showErrorMessage("No workspace folder is open.");
-    return null;
-  }
+  const selectedItems = await vscode.window.showQuickPick(items, {
+    canPickMany: true,
+    placeHolder: "Select MCP servers to include",
+    title: "MCP Server Selection",
+  });
 
-  const serverFilePath = vscode.Uri.joinPath(
-    workspaceFolders[0].uri,
-    "mcp_servers",
-    serverFileName
-  );
-
-  try {
-    const content = await vscode.workspace.fs.readFile(serverFilePath);
-    return JSON.parse(content.toString());
-  } catch (error) {
-    vscode.window.showErrorMessage("Could not read MCP server config.");
-    return null;
-  }
-}
-
-// add a function that shows a quick pick of the mcp servers in the workspace
-async function pickMcpServer() {
-  const serverConfigs = await readMcpServerConfigs();
-  if (serverConfigs.length === 0) {
-    vscode.window.showErrorMessage("No MCP server configs found.");
+  if (!selectedItems || selectedItems.length === 0) {
     return undefined;
   }
-  const picked = await vscode.window.showQuickPick(
-    serverConfigs.map(({ server }) => server),
-    {
-      placeHolder: "Select an MCP server",
+
+  const selectedServers = new Map<string, any>();
+  for (const item of selectedItems) {
+    const serverConfig = mcpServersMap.get(item.label);
+    if (serverConfig) {
+      selectedServers.set(item.label, serverConfig);
     }
-  );
-  return picked;
+  }
+
+  return selectedServers;
+}
+
+// Create temporary JSON file with selected servers
+async function createTempJsonFile(
+  selectedServers: Map<string, any>
+): Promise<string> {
+  const mcpServersObject = {
+    mcpServers: Object.fromEntries(selectedServers),
+  };
+
+  const content = JSON.stringify(mcpServersObject, null, 2);
+  const timestamp = new Date().getTime();
+  const tempDir = os.tmpdir();
+  const tempFilePath = path.join(tempDir, `mcp-servers-${timestamp}.json`);
+
+  await fs.promises.writeFile(tempFilePath, content, 'utf-8');
+
+  return tempFilePath;
+}
+
+// Main function to coordinate the workflow
+export async function selectMcpServers(): Promise<string | undefined> {
+  const workspaceFolders = vscode.workspace.workspaceFolders;
+  if (!workspaceFolders || workspaceFolders.length === 0) {
+    vscode.window.showErrorMessage("No workspace folder open");
+    return undefined;
+  }
+
+  const workspaceDir = workspaceFolders[0].uri.fsPath;
+
+  try {
+    // 1. Find all JSON files
+    const jsonFiles = await findMcpServerJsonFiles(workspaceDir);
+    if (jsonFiles.length === 0) {
+      vscode.window.showInformationMessage(
+        "No JSON files found in mcp_servers directory"
+      );
+      return undefined;
+    }
+
+    // 2. Read all JSON files
+    const jsonObjects = await readJsonFiles(jsonFiles);
+
+    // 3. Collect and merge mcpServers objects
+    const mcpServersMap = collectMcpServers(jsonObjects);
+    if (mcpServersMap.size === 0) {
+      vscode.window.showInformationMessage(
+        "No mcpServers configurations found"
+      );
+      return undefined;
+    }
+
+    // 4. Show multi-select quickpick
+    const selectedServers = await showServerQuickPick(mcpServersMap);
+    if (!selectedServers) {
+      return undefined;
+    }
+
+    // 5. Create temporary JSON file
+    const tempFilePath = await createTempJsonFile(selectedServers);
+
+    // 6. Return the file path
+    return tempFilePath;
+  } catch (error) {
+    vscode.window.showErrorMessage(`Error processing MCP servers: ${error}`);
+    return undefined;
+  }
 }
 
 // This method is called when your extension is activated
@@ -98,40 +180,47 @@ export function activate(context: vscode.ExtensionContext) {
     'Congratulations, your extension "claude-code-router-vscode" is now active!'
   );
 
+  // Register the virtual document provider
+  const mcpServersProvider = new McpServersContentProvider();
+  const providerRegistration =
+    vscode.workspace.registerTextDocumentContentProvider(
+      "mcpservers",
+      mcpServersProvider
+    );
+  context.subscriptions.push(providerRegistration);
+
+  // Store the provider in workspace state for access in other functions
+  context.workspaceState.update("mcpServersProvider", mcpServersProvider);
+
+  // Register the selectMcpServers command
+  const selectMcpServersCommand = vscode.commands.registerCommand(
+    "claude-code-router.selectMcpServers",
+    async () => {
+      const tempFilePath = await selectMcpServers();
+      if (tempFilePath) {
+        // Open the temporary file
+        const doc = await vscode.workspace.openTextDocument(tempFilePath);
+        await vscode.window.showTextDocument(doc, { preview: false });
+      }
+    }
+  );
+  context.subscriptions.push(selectMcpServersCommand);
+
   // The command has been defined in the package.json file
   // Now provide the implementation of the command with registerCommand
   // The commandId parameter must match the command field in package.json
   const disposable = vscode.commands.registerCommand(
     "claude-code-router.runCcrCode",
     async () => {
-      const input = await vscode.window.showInputBox({
-        prompt: "What is your command?",
-        placeHolder: "e.g., --dangerously-skip-permissions",
-      });
-      const workspaceFolders = vscode.workspace.workspaceFolders;
-      if (!workspaceFolders) {
-        vscode.window.showErrorMessage("No workspace folder is open.");
-        return;
+      const tempFilePath = await selectMcpServers();
+      if (tempFilePath) {
+        const terminal = vscode.window.createTerminal({
+          name: `Claude Code Router`,
+          location: { viewColumn: vscode.ViewColumn.Beside },
+        });
+        terminal.sendText(`claude --mcp-config "${tempFilePath}"`);
+        terminal.show();
       }
-      const mcpServersPath = vscode.Uri.joinPath(
-        workspaceFolders[0].uri,
-        "mcp_servers"
-      );
-
-      const pickedServer = await pickMcpServer();
-
-      const pickedServerPath = pickedServer
-        ? vscode.Uri.joinPath(mcpServersPath, pickedServer)
-        : undefined; // currently not used, but could be in the future
-      // The code you place here will be executed every time your command is executed
-      const terminal = vscode.window.createTerminal({
-        name: `Claude Code Router`,
-        location: { viewColumn: vscode.ViewColumn.Beside },
-      });
-      terminal.sendText(
-        `claude ${input} --mcp-config ${pickedServerPath?.fsPath}`
-      );
-      terminal.show();
     }
   );
 
