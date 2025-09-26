@@ -1,0 +1,57 @@
+{
+  "mcpServers": {
+    "ask-codex": {
+      "args": ["mcp"],
+      "command": "codex"
+    },
+    "bitbucket": {
+      "args": [],
+      "command": "bb-mcp-server",
+      "env": {
+        "BITBUCKET_APP_PASSWORD": "${BITBUCKET_APP_PASSWORD}",
+        "BITBUCKET_REPO": "${BITBUCKET_REPO}",
+        "BITBUCKET_USERNAME": "${BITBUCKET_USERNAME}",
+        "BITBUCKET_WORKSPACE": "${BITBUCKET_WORKSPACE}"
+      }
+    },
+    "chrome-devtools": {
+      "args": [],
+      "command": "chrome-dev-tools"
+    },
+    "docs-server": {
+      "args": ["@arabold/docs-mcp-server@latest"],
+      "command": "npx"
+    },
+    "jira": {
+      "args": ["atlassian-jira-mcp-server"],
+      "command": "uvx",
+      "env": {
+        "JIRA_API_TOKEN": "${JIRA_API_TOKEN}",
+        "JIRA_BASE_URL": "${JIRA_BASE_URL}",
+        "JIRA_DEFAULT_PROJECT": "${BITBUCKET_WORKSPACE}",
+        "JIRA_USERNAME": "${JIRA_USERNAME}"
+      }
+    },
+    "launch-darkly": {
+      "args": [
+        "-y",
+        "--package",
+        "@launchdarkly/mcp-server",
+        "--",
+        "mcp",
+        "start",
+        "--api-key",
+        "${LAUNCH_DARKLY_SDK_KEY}",
+        "--tool",
+        "list-feature-flags",
+        "--tool",
+        "create-feature-flag",
+        "--tool",
+        "get-feature-flag",
+        "--tool",
+        "update-feature-flag"
+      ],
+      "command": "npx"
+    }
+  }
+}

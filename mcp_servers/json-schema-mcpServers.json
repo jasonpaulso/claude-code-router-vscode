@@ -1,0 +1,199 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "description": "",
+  "type": "object",
+  "properties": {
+    "mcpServers": {
+      "type": "object",
+      "properties": {
+        "ask-codex": {
+          "type": "object",
+          "properties": {
+            "args": {
+              "type": "array",
+              "items": {
+                "required": [],
+                "properties": {}
+              }
+            },
+            "command": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "args",
+            "command"
+          ]
+        },
+        "bitbucket": {
+          "type": "object",
+          "properties": {
+            "args": {
+              "type": "array",
+              "items": {
+                "required": [],
+                "properties": {}
+              }
+            },
+            "command": {
+              "type": "string",
+              "minLength": 1
+            },
+            "env": {
+              "type": "object",
+              "properties": {
+                "BITBUCKET_APP_PASSWORD": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "BITBUCKET_REPO": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "BITBUCKET_USERNAME": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "BITBUCKET_WORKSPACE": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "BITBUCKET_APP_PASSWORD",
+                "BITBUCKET_REPO",
+                "BITBUCKET_USERNAME",
+                "BITBUCKET_WORKSPACE"
+              ]
+            }
+          },
+          "required": [
+            "args",
+            "command",
+            "env"
+          ]
+        },
+        "chrome-devtools": {
+          "type": "object",
+          "properties": {
+            "args": {
+              "type": "array",
+              "items": {
+                "required": [],
+                "properties": {}
+              }
+            },
+            "command": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "args",
+            "command"
+          ]
+        },
+        "docs-server": {
+          "type": "object",
+          "properties": {
+            "args": {
+              "type": "array",
+              "items": {
+                "required": [],
+                "properties": {}
+              }
+            },
+            "command": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "args",
+            "command"
+          ]
+        },
+        "jira": {
+          "type": "object",
+          "properties": {
+            "args": {
+              "type": "array",
+              "items": {
+                "required": [],
+                "properties": {}
+              }
+            },
+            "command": {
+              "type": "string",
+              "minLength": 1
+            },
+            "env": {
+              "type": "object",
+              "properties": {
+                "JIRA_API_TOKEN": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "JIRA_BASE_URL": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "JIRA_DEFAULT_PROJECT": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "JIRA_USERNAME": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "JIRA_API_TOKEN",
+                "JIRA_BASE_URL",
+                "JIRA_DEFAULT_PROJECT",
+                "JIRA_USERNAME"
+              ]
+            }
+          },
+          "required": [
+            "args",
+            "command",
+            "env"
+          ]
+        },
+        "launch-darkly": {
+          "type": "object",
+          "properties": {
+            "args": {
+              "type": "array",
+              "items": {
+                "required": [],
+                "properties": {}
+              }
+            },
+            "command": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "args",
+            "command"
+          ]
+        }
+      },
+      "required": [
+        "ask-codex",
+        "bitbucket",
+        "chrome-devtools",
+        "docs-server",
+        "jira",
+        "launch-darkly"
+      ]
+    }
+  },
+  "required": [
+    "mcpServers"
+  ]
+}

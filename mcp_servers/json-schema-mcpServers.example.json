@@ -1,0 +1,59 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "description": "",
+  "type": "object",
+  "properties": {
+    "mcpServers": {
+      "type": "object",
+      "properties": {
+        "server-1": {
+          "type": "object",
+          "properties": {
+            "args": {
+              "type": "array",
+              "items": {
+                "required": [],
+                "properties": {}
+              }
+            },
+            "command": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "args",
+            "command"
+          ]
+        },
+        "server-2": {
+          "type": "object",
+          "properties": {
+            "args": {
+              "type": "array",
+              "items": {
+                "required": [],
+                "properties": {}
+              }
+            },
+            "command": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "args",
+            "command"
+          ]
+        }
+      },
+      "required": [
+        "server-1",
+        "server-2"
+      ]
+    }
+  },
+  "required": [
+    "mcpServers"
+  ]
+}
