@@ -1,4 +1,4 @@
-# Claude Code Router For Visual Studio Code
+# Claude Code Configured For Visual Studio Code
 
 ![Extension icon](resources/claude-logo.png)
 

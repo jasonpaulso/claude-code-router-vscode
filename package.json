@@ -2,7 +2,7 @@
   "name": "claude-code-configured-vscode",
   "displayName": "Claude Code Configuration Runner",
   "description": "Claude Code Configuration Runner for VS Code.",
-  "version": "0.0.2",
+  "version": "0.0.1",
   "publisher": "jasonschulz",
   "repository": {
     "type": "git",
@@ -55,6 +55,17 @@
           "group": "navigation"
         }
       ]
+    },
+    "configuration": {
+      "type": "object",
+      "title": "Claude Code Configured",
+      "properties": {
+        "claude-code-configured.mcpServersFilePath": {
+          "type": "string",
+          "default": "",
+          "description": "Path to the MCP servers configuration file."
+        }
+      }
     }
   },
   "scripts": {
